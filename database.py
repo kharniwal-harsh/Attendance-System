@@ -7,7 +7,13 @@ load_dotenv()
 # Get MongoDB URI from environment variable
 MONGO_URI = os.getenv("MONGO_URI")
 if not MONGO_URI:
-    raise ValueError("No MONGO_URI environment variable set!")
+    print("Warning: MONGO_URI not found in environment variables")
+    print("Checking .env file...")
+    from dotenv import load_dotenv
+    load_dotenv()
+    MONGO_URI = os.getenv("MONGO_URI")
+    if not MONGO_URI:
+        raise ValueError("No MONGO_URI found in environment variables or .env file!")
 
 try:
     # Connect with a timeout and additional options for Atlas
