@@ -65,14 +65,38 @@ jobs:
         uses: supercharge/mongodb-github-action@1.8.0
         with:
           mongodb-version: '5.0'
+          mongodb-replica-set: test-rs
+          mongodb-port: 27017
 
-      - name: Set environment variables
+      - name: Debug environment setup
         run: |
+          echo "Checking for MONGO_URI secret..."
+          if [ -n "${{ secrets.MONGO_URI }}" ]; then
+            echo "✓ MONGO_URI secret is set"
+          else
+            echo "✗ Error: MONGO_URI secret is not set in GitHub repository secrets"
+            echo "Please add MONGO_URI to repository secrets (not environment secrets)"
+            exit 1
+          fi
+
+      - name: Set up environment files
+        run: |
+          echo "Setting up .env file..."
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
+          echo "Setting up GitHub environment..."
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> $GITHUB_ENV
+          echo "✓ Environment configuration complete"
 
       - name: Initialize database
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: |
+          echo "Starting database initialization..."
+          echo "Testing MongoDB connection..."
+          python -c "from database import client; print('MongoDB connection successful!')"
+          echo "Running database initialization..."
           python init_db.py
+          echo "✓ Database initialization complete"
 
       - name: Build and check application
         run: |
