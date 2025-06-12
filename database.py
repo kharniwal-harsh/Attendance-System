@@ -10,8 +10,12 @@ if not MONGO_URI:
     raise ValueError("No MONGO_URI environment variable set!")
 
 try:
-    # Connect with a timeout
-    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    # Connect with a timeout and additional options for Atlas
+    client = MongoClient(MONGO_URI, 
+                        serverSelectionTimeoutMS=5000,
+                        connectTimeoutMS=5000,
+                        socketTimeoutMS=5000,
+                        maxPoolSize=50)
     # Verify connection
     client.server_info()
     print("Successfully connected to MongoDB Atlas!")
